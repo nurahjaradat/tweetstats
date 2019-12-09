@@ -1,0 +1,7 @@
+pandoc: 2.3.1
+pkgdown: 1.4.1
+pkgdown_sha: ~
+articles:
+  Intro_keystats: Intro_keystats.html
+  Intro_userstats: Intro_userstats.html
+

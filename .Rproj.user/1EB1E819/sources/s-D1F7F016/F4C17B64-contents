@@ -1,0 +1,39 @@
+userstats <- function(user, n=1000, bg_col = "white", txt_col = "#1A5276", year=2019, x=10){
+  if(!is.numeric(n))
+    stop("n must be numeric number no more than 3200", call. = FALSE)
+  if(n>3200)
+    stop("n should not exceed 3200", call. = FALSE)
+  user <- deparse(substitute(user))
+  n <- deparse(substitute(n))
+  year <- deparse(substitute(year))
+  x <- deparse(substitute(x))
+  # read in the template and modify it
+  report <- readLines("userstatsTemplate.txt")
+  report <- gsub("xxxbg", bg_col, report, fixed = TRUE)
+  report <- gsub("xxxnum", n, report, fixed = TRUE)
+  report <- gsub("xxxusers", user, report, fixed = TRUE)
+  report <- gsub("xxxcol", txt_col, report, fixed = TRUE)
+  report <- gsub("xxxyr", year, report, fixed = TRUE)
+  report <- gsub("xxxtwt", x, report, fixed = TRUE)
+  # write out template
+  tf <- tempfile(fileext = ".Rmd")
+  to <- tempfile(fileext = ".Html")
+  writeLines(report, tf)
+  
+  # render R markdown and display
+  library(rmarkdown)
+  render(input = tf,
+         output_format = "html_document",
+         output_file = to)
+  file.show(to)
+  
+  invisible(to)
+}
+
+#examples:
+
+userstats(c("taylorswift13","katyperry"),1000,year = 2019, x=5)
+
+userstats("taylorswift13",1000, x=5)
+
+userstats(c("taylorswift13","21savage","trvisxx","katyperry"), 1000, year=2019, x = 3)

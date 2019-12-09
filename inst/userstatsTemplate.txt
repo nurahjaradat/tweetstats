@@ -1,0 +1,79 @@
+---
+output:
+  html_document
+---
+<style>
+table {
+  background-color: xxxbg !important;
+  color: xxxcol !important;
+}
+</style>
+### <span style="color:#154360">Summary Report of Tweets Searched by Username </span>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##### Account Summary Information
+
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
+library(rtweet)
+library(dplyr)
+library(tidytext)
+library(rtweet)
+library(wordcloud)
+library(ggplot2)
+library(tm)
+library(knitr)
+library(kableExtra)
+
+userdf <- get_timelines(xxxusers, n=eval(substitute(xxxnum)))
+userdf_2 <- select(userdf, screen_name, created_at, text, location, description,
+       followers_count, friends_count, statuses_count, favourites_count,
+       account_created_at, profile_url, profile_expanded_url, profile_image_url)
+
+results <- userdf_2 %>%
+  group_by(screen_name) %>%
+  summarise(followers_count=mean(followers_count),
+            friends_count=mean(friends_count),
+            statuses_count=mean(statuses_count),
+            favourites_count=mean(favourites_count))
+
+kable(results) %>% kable_styling()
+```
+
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
+userdf %>%
+  mutate(created_at=as.POSIXct(created_at),
+  year=format(as.Date(created_at),"%Y")) %>%
+  filter(year == xxxyr) %>%
+  group_by(screen_name) %>%
+  ts_plot("month") +
+  geom_point() +
+  theme_minimal() +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        plot.title = element_text(face = "bold")) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Frequency of Twitter statuses",
+    subtitle = paste("Twitter status (tweet) counts aggregated by months in", xxxyr)
+  )
+```
+
+##### xxxtwt Most Recent Tweets 
+
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
+result2 <-
+  userdf_2 %>%
+  group_by(screen_name) %>%
+  select(screen_name, created_at, text) %>%
+  top_n(eval(substitute(xxxtwt)), created_at) %>%
+  arrange(screen_name)
+
+kable(result2) %>% kable_styling() %>%
+pack_rows(index=table(result2$screen_name))
+
+```
+

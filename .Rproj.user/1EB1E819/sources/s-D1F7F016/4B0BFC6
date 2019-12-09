@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1575915690264.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "4B0BFC6",
+    "lastKnownWriteTime" : 1575930170,
+    "last_content_update" : 1575930170609,
+    "path" : "~/Documents/R Projects/tweetstats/R/keystats.R",
+    "project_path" : "R/keystats.R",
+    "properties" : {
+        "cursorPosition" : "18,51",
+        "scrollLine" : "3"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

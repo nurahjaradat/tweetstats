@@ -1,0 +1,175 @@
+---
+output:
+   html_document
+---
+<style>
+table {
+  background-color: white !important;
+  color: #1A5276 !important;
+}
+</style>
+### <span style="color:#154360">Summary Report of Tweets Searced by Keyword xxxkeyword</span>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##### <span style="color:#154360">Count of unique words related to keyword input found in tweets:</span>
+```{r,message=FALSE, echo=FALSE, warning=FALSE}
+library(rtweet)
+library(dplyr)
+library(tidytext)
+library(rtweet)
+library(wordcloud)
+library(ggplot2)
+library(tm)
+library(fmsb)
+library(tidyr)
+
+df <- data.frame(search_tweets(xxxkeyword, n=eval(substitute(xxxnum)), include_rts = FALSE, include_replang = "en"))
+
+df$text <- gsub("http.*","",  df$text)
+df$text <- gsub("https.*","", df$text)
+df$text <- gsub("&", "&", df$text)
+df$text  <-  gsub("&amp", "", df$text) 
+df$text <-  gsub("@\\S*", "", df$text) 
+df$text  <-  gsub("[\r\n]", "", df$text)
+
+#remove punctuation, convert to lowercase, and then separate words
+df_clean <- df %>%
+  dplyr::select(text) %>%
+  unnest_tokens(word, text)
+
+#remove stop words
+data("stop_words")
+cleaned_tweet_words <- df_clean %>%
+  anti_join(stop_words)
+
+#graph most frequent words in tweets - need to get prettier graphs, should give option to select # of top words
+cleaned_tweet_words %>%
+  count(word, sort = TRUE) %>%
+  top_n(eval(substitute(xxxtop_num))) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(x = word, y = n)) +
+  theme(panel.background = element_rect(fill = "ghostwhite")) +
+  geom_col(fill = xxxfill) +
+  xlab(NULL) +
+  coord_flip() +
+  labs(y = "Count",
+       x = "Unique words",
+       title = "Count of Unique Words",
+       subtitle = paste("Top",xxxtop_num, "most frequent unique words found in tweets
+       related to", xxxkeyword),
+       caption = paste("\nReal time tweet created from",min(df$created_at)
+       ,"\nSource: Data collected from Twitter's REST API via rtweet"))
+```
+
+
+```{r,message=FALSE, echo=FALSE, warning=FALSE}
+#clean hashtags
+df$hashtags <- as.character(df$hashtags)
+df$hashtags <- gsub("c\\(", "", df$hashtags)
+df$hashtags <- gsub(")", "", df$hashtags)
+
+#remove punctuation, convert to lowercase, and then separate hashtags
+hashtags <- df %>%
+  dplyr::select(hashtags) %>%
+  unnest_tokens(hashtag, hashtags)
+
+#remove NAs
+hashtags_complete <- na.omit(hashtags) 
+
+```
+
+------
+
+### <span style="color:#154360"> Hashtag Word Clouds and Bar Plot</span>
+##### <span style="color:#1A5276">For the word cloud the scale, number of words, and color are all customizeable. </span>
+##### <span style="color:#1A5276">Input the desired hashtag in order to view the output of the count of unique related hashtags found in tweets.</span>
+```{r,message=FALSE, warning=FALSE, echo=FALSE}
+set.seed(1234)
+# wordcloud(hashtags_complete$hashtag, min.freq=5, scale=c(4, .5), max.words = eval(substitute(xxxtop_num)), random.order=FALSE, random.color = FALSE, rot.per=0.1)
+wordcloud (hashtags_complete$hashtag, scale=c(3, .3), max.words=20, random.order=FALSE, rot.per=.3, use.r.layout=FALSE, colors = brewer.pal(8, "Blues"))
+
+#graph hashtags - should give option to adjust # of top hashtags
+hashtags_complete %>%
+  count(hashtag, sort = TRUE) %>%
+  top_n(eval(substitute(xxxtop_num))) %>%
+  mutate(hashtag = reorder(hashtag, n)) %>%
+  ggplot(aes(x = hashtag, y = n)) +
+  theme(panel.background = element_rect(fill = "ghostwhite")) +
+  geom_col(fill = xxxfill) +
+  xlab(NULL) +
+  coord_flip() +
+  labs(y = "Count",
+       x = "Unique words",
+       title = "Count of Unique Hashtags",
+       subtitle = paste("Top", xxxtop_num, " most frequent unique hashtags found in tweets related to",xxxkeyword),
+       caption = paste("\nReal time tweet created from",min(df$created_at)))
+
+```
+
+```{r,message=FALSE, warning=FALSE, echo=FALSE, fig.width=12, fig.height=10}
+hashtag_df <- 
+  hashtags_complete %>%
+  count(hashtag, sort = TRUE) %>%
+  top_n(eval(substitute(xxxtop_num))) %>%
+  mutate(hashtag = reorder(hashtag, n)) 
+
+hashtag_df_wide <- spread(hashtag_df, hashtag, n)
+
+hashtag_df_wide <- rbind(rep(max(hashtag_df$n)+min(hashtag_df$n),eval(substitute(xxxtop_num))),rep(0,eval(substitute(xxxtop_num))),hashtag_df_wide)
+
+radarchart(hashtag_df_wide,axistype=1 , 
+           
+           #custom polygon
+           pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4 , 
+           
+           #custom the grid
+           cglcol="grey", cglty=1, caxislabels=c("","","","",""),axislabcol="grey", 
+           cglwd=0.8,
+           
+           #custom labels
+           vlcex=0.8,
+           title="Distribution of Most Frequent Hashtags")
+```
+
+
+------
+
+## <span style="color:#154360">Location Frequencies in Tweets</span>
+##### <span style="color:#1A5276">Users may customize the number of tweets whose location data they want to analyze as well as the color of the graph.</span>
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+#location of users searching for the term - need to clean text to avoid repetition of location, make graph prettier, option to adjust # of top locations
+df %>%
+  count(location, sort = TRUE) %>%
+  mutate(location = reorder(location,n)) %>%
+  na.omit() %>%
+  top_n(eval(substitute(xxxtop_num))) %>%
+  ggplot(aes(x = location,y = n)) +
+  theme(panel.background = element_rect(fill = "ghostwhite")) +
+  geom_col(fill = xxxfill) +
+  coord_flip() +
+  labs(x = "Location",
+       y = "Count",
+       title = "Location of Twitter Users",
+       caption = paste("\nReal time tweet created from",min(df$created_at)))
+
+#location of users by country (less data but better graphs with less work)
+df %>%
+  count(country, sort = TRUE) %>%
+  mutate(country = reorder(country,n)) %>%
+  na.omit() %>%
+  top_n(eval(substitute(xxxtop_num))) %>%
+  ggplot(aes(x = country,y = n)) +
+  theme(panel.background = element_rect(fill = "ghostwhite")) +
+  geom_col(fill = xxxfill) +
+  coord_flip() +
+  labs(x = "Location",
+       y = "Count",
+       title = "Location of Twitter Users", 
+       caption = paste("\nReal time tweet created from",min(df$created_at)))
+
+```
+
