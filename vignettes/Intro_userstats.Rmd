@@ -1,5 +1,5 @@
 ---
-title: "Intro_userstats"
+title: "Introduction to userstats"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Intro_userstats}
