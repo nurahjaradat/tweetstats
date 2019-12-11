@@ -24,6 +24,23 @@ analyze (with a maximum output allowed of 3,200 tweets), customize the backgroun
 color of output tables, and customize the text color of the output with the 
 assumption of knowledge of HTML color codes.
 
+-----
+
+### Usage of the function:
+
+userstats(user, n = 1000, bg_col = "white", txt_col = "#1A5276", year = 2019, x = 10)
+
+-----
+
+### Arguments of the function:
+
+user: The username of a real Twitter account that the user of this function wishes to analyze
+n: The number of tweets the user of this function wishes to analyze from the desired account. Default = 1000
+bg_col: The background color of all tables in the HTML output. Default = "white"
+txt_col: The text color of all tables in the HTML output. Default = "#1A5276"
+year: The year during which the tweets the user wishes to analyze were published. Default = 2019
+x: The number of recent tweets the user wishes to display from the indicated account in the HTML output. Default = 10
+
 ```{r setup}
 library(tweetstats)
 userstats <- function(user, n=1000, bg_col = "white", txt_col = "#1A5276", year=2019, x=10){

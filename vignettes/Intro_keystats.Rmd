@@ -22,6 +22,22 @@ returning multiple graphics and statistical summaries such as a bar plot of
 related unique words, a word cloud, a radar chart, and two bar plots of location 
 statistics.
 
+-----
+
+### Usage of the function:
+
+keystats(key, n = 10000, top_num = 10, graph_col = "dodgerblue3")
+
+-----
+
+### Arguments of the function:
+
+key: The keyword or hashtag that the user of this function wishes to analyze
+n: The number of tweets relating to key that the user of this function wishes to analyze. 
+    The maximum number of tweets to analyze at once is 18,000. Default = 10,000
+top_num: The number of top words/hashtags/locations displayed in the HTML output. Default = 10
+graph_col: The color of graphs in the HTML output. Default = "dodgerblue3"
+
 ```{r setup}
 library(tweetstats)
 keystats <- function(key,n=10000,top_num=10, graph_col = "dodgerblue3"){
